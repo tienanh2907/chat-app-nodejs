@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Home</title>
+        <style>
+            .container {
+                margin-bottom: 20px;
+            }
+
+            .input {
+                outline: none;
+                height: 20px;
+                width: 160px;
+            }
+
+            .btn {
+                background: #3434cb;
+                border: none;
+                color: #fff;
+                padding: 6px 16px;
+                border-radius: 10px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Hi </h1>
+        <ul class="list-room"></ul>
+        <form id="create-room" method="GET" action="/room">
+            <div class="container">
+                <input
+                    type="text"
+                    class="input"
+                    name="room"
+                    placeholder="Enter room name"
+                />
+                <button class="btn">Create</button>
+            </div>
+        </form>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io();
+            const form = document.querySelector("#create-room");
+            const input = document.querySelector(".input");
+
+            form.onsubmit = () => {
+                console.log(input.value);
+            };
+        </script>
+    </body>
+</html>

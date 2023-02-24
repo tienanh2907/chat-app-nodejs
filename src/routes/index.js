@@ -1,6 +1,6 @@
-import userRoutes from "./userRoutes.js";
-import chatRoutes from "./chatRoutes.js";
-import messageRoutes from "./messageRoutes.js";
+// import userRoutes from "./userRoutes.js";
+// import chatRoutes from "./chatRoutes.js";
+// import messageRoutes from "./messageRoutes.js";
 import messageRoomRoutes from "./messageRoomRoutes.js";
 
 const routes = (app) => {

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chat</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                padding: 0;
+                margin: 0;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, Helvetica, Arial, sans-serif;
+            }
+
+            #container {
+                display: flex;
+                flex-direction: row;
+            }
+
+            .chat {
+                position: relative;
+                width: 100%;
+                height: 100vh;
+                display: flex;
+
+                --chat-control-height: 3rem;
+            }
+
+            #form {
+                width: 100%;
+                height: var(--chat-control-height);
+                background: #ccc;
+                padding: 0.25rem;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                box-sizing: border-box;
+                backdrop-filter: blur(10px);
+            }
+
+            #input {
+                border: none;
+                padding: 0 1rem;
+                flex-grow: 1;
+                border-radius: 2rem;
+                margin: 0.25rem;
+            }
+
+            #input:focus {
+                outline: none;
+            }
+
+            #form > button {
+                background: #3434cb;
+                border: none;
+                padding: 0 1rem;
+                margin: 0.25rem;
+                border-radius: 3px;
+                outline: none;
+                color: #fff;
+            }
+
+            #messages {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: calc(100vh - var(--chat-control-height));
+            }
+
+            #messages > li {
+                padding: 0.5rem 1rem;
+            }
+
+            #messages > li:nth-child(odd) {
+                background: #efefef;
+            }
+
+            .sidebar {
+                display: block;
+                height: 100vh;
+                width: 300px;
+                background-color: #ccc;
+            }
+
+            .sidebar div {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 10px;
+            }
+
+            #join-btn {
+                margin: 0 30px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="container">
+            <nav class="sidebar">
+                <h1 class="title"></h1>
+                <div>
+                    <label for="name-input">Name</label>
+                    <input id="name-input" name="userName" type="text" />
+                </div>
+                <div>
+                    <label for="room-input">Room</label>
+                    <input id="room-input" name="roomName" type="text" />
+                </div>
+                <div>
+                    <button id="join-btn">Join</button>
+                </div>
+            </nav>
+            <div class="chat">
+                <ul id="messages"></ul>
+                <form id="form">
+                    <input id="input" autocomplete="off" />
+                    <button>Send</button>
+                </form>
+            </div>
+        </div>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io();
+            const messages = document.querySelector("#messages");
+            const form = document.querySelector("#form");
+            const input = document.querySelector("#input");
+            const btnJoin = document.querySelector("#join-btn");
+            const usernameInput = document.querySelector("#name-input");
+            const roomInput = document.querySelector("#room-input");
+            const title = document.querySelector(".title");
+
+            const dataClient = {};
+
+            const addMessage = (msg) => {
+                const item = document.createElement("li");
+                item.textContent = msg;
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            };
+
+            const errorHandle = (error, errorMsg) => {
+                return alert("Please enter a username + room");
+            };
+
+            btnJoin.addEventListener("click", async () => {
+                if (!usernameInput.value && !roomInput.value)
+                    return errorHandle();
+
+                dataClient.user = usernameInput.value;
+                dataClient.room = roomInput.value;
+
+                const messages = await fetch(
+                    `http://localhost:3500/api/message-room/${dataClient.room}`
+                ).then((response) => response.json());
+
+                messages.forEach((message) => {
+                    addMessage(message.user + ": " + message.content);
+                });
+
+                socket.emit("client:join-room", dataClient);
+
+                // addMessage("You have joined the chat room " + dataClient.room);
+                title.textContent = `user: ${dataClient.user}\n room: ${dataClient.room}`;
+                usernameInput.value = "";
+                roomInput.value = "";
+            });
+
+            form.addEventListener("submit", (e) => {
+                e.preventDefault();
+                if (input.value) {
+                    if (!dataClient.user && !dataClient.room) {
+                        input.value = "";
+                        errorHandle();
+                        return;
+                    }
+
+                    dataClient.content = input.value;
+                    // addMessage(`You: ${message}`);
+
+                    socket.emit("send-message", dataClient);
+
+                    input.value = "";
+                }
+                return false;
+            });
+
+            socket.on("server:join-room", (messages) => {
+                messages.forEach((msg) => {
+                    addMessage(msg.user + ": " + msg.content);
+                });
+            });
+
+            socket.on("chat-message", (msg) => {
+                addMessage(msg.user + ": " + msg.content);
+            });
+
+            socket.on("user-leave", (user) => {
+                addMessage(user + "has left");
+            });
+        </script>
+    </body>
+</html>

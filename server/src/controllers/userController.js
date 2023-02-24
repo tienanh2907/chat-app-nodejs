@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import generateToken from "../token.js";
 
 // @method  POST
 // @route   /api/user/register
@@ -44,6 +45,7 @@ const registerUser = async (req, res, next) => {
                     email: newUser.email,
                     image: newUser.image,
                 },
+                token: generateToken(newUser._id),
             });
         } else {
             res.status(500).json({
@@ -83,9 +85,10 @@ const loginUser = async (req, res, next) => {
 
         delete user._doc.password;
         res.status(200).json({
+            user,
             errorCode: 0,
             message: "User login sucessful",
-            user,
+            token: generateToken(user._id),
         });
     } catch (err) {
         throw Error(err);

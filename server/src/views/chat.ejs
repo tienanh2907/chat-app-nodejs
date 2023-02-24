@@ -109,11 +109,11 @@
                 <h1 class="title"></h1>
                 <div>
                     <label for="name-input">Name</label>
-                    <input id="name-input" type="text" />
+                    <input id="name-input" name="userName" type="text" />
                 </div>
                 <div>
                     <label for="room-input">Room</label>
-                    <input id="room-input" type="text" />
+                    <input id="room-input" name="roomName" type="text" />
                 </div>
                 <div>
                     <button id="join-btn">Join</button>
@@ -152,21 +152,25 @@
                 return alert("Please enter a username + room");
             };
 
-            btnJoin.addEventListener("click", () => {
+            btnJoin.addEventListener("click", async () => {
                 if (!usernameInput.value && !roomInput.value)
                     return errorHandle();
 
-                dataClient.username = usernameInput.value;
+                dataClient.user = usernameInput.value;
                 dataClient.room = roomInput.value;
 
-                socket.emit(
-                    "user-connect",
-                    dataClient.username,
-                    dataClient.room
-                );
+                const messages = await fetch(
+                    `http://localhost:3500/api/message-room/${dataClient.room}`
+                ).then((response) => response.json());
 
-                addMessage("You have joined the chat room '" + dataClient.room);
-                title.textContent = `user: ${dataClient.username}\n room: ${dataClient.room}`;
+                messages.forEach((message) => {
+                    addMessage(message.user + ": " + message.content);
+                });
+
+                socket.emit("client:join-room", dataClient);
+
+                // addMessage("You have joined the chat room " + dataClient.room);
+                title.textContent = `user: ${dataClient.user}\n room: ${dataClient.room}`;
                 usernameInput.value = "";
                 roomInput.value = "";
             });
@@ -174,36 +178,34 @@
             form.addEventListener("submit", (e) => {
                 e.preventDefault();
                 if (input.value) {
-                    if (!dataClient.username && !dataClient.room) {
+                    if (!dataClient.user && !dataClient.room) {
                         input.value = "";
                         errorHandle();
                         return;
                     }
 
-                    message = input.value;
-                    addMessage(`You: ${message}`);
+                    dataClient.content = input.value;
+                    // addMessage(`You: ${message}`);
 
-                    socket.emit("sent-message", {
-                        message,
-                        username: dataClient.username,
-                        room: dataClient.room,
-                    });
+                    socket.emit("send-message", dataClient);
 
                     input.value = "";
                 }
                 return false;
             });
 
-            socket.on("user-joined", (username,data) => {
-                addMessage(`${username} joined chat`);
+            socket.on("server:join-room", (messages) => {
+                messages.forEach((msg) => {
+                    addMessage(msg.user + ": " + msg.content);
+                });
             });
 
-            socket.on("chat-message", (data) => {
-                addMessage(data.username + ": " + data.message);
+            socket.on("chat-message", (msg) => {
+                addMessage(msg.user + ": " + msg.content);
             });
 
-            socket.on("user-leave", (username) => {
-                addMessage(username + "has left");
+            socket.on("user-leave", (user) => {
+                addMessage(user + "has left");
             });
         </script>
     </body>

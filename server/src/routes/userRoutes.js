@@ -4,10 +4,11 @@ import {
     loginUser,
     getUser,
 } from "../controllers/userController.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", getUser);
+router.get("/", auth, getUser);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 

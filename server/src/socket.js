@@ -1,20 +1,31 @@
+import MessageRoom from "./models/MessageRoom.js";
+
 const socketServices = (io) => {
-    const data = {};
     io.on("connection", (socket) => {
-        socket.on("user-connect", (username, room) => {
+        socket.on("client:join-room", async ({room}) => {
             socket.join(room);
-            data.username = username;
-            data.room = room;
-            socket.to(room).emit("user-joined", username, data);
+            try {
+                const messages = await MessageRoom.find({ room });
+                socket.to(messages.room).emit("server:join-room", messages);
+            } catch (err) {
+                console.log(err);
+            }
         });
 
-        socket.on("sent-message", (data) => {
-            socket.to(data.room).emit("chat-message", data);
+        socket.on("send-message", async (data) => {
+            if (!data.content) return console.log("message is empty");
+
+            try {
+                const res = await MessageRoom.create(data);
+                socket.emit("chat-message", res);
+            } catch (err) {
+                console.log(err);
+            }
         });
 
-        socket.on("disconnect", () => {
-            socket.to(data.room).emit("user-leave", data.username);
-        });
+        // socket.on("disconnect", () => {
+        //     socket.to(data.room).emit("user-leave", data.username);
+        // });
     });
 };
 

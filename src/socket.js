@@ -17,7 +17,6 @@ const socketServices = (io) => {
 
             try {
                 const msg = await MessageRoom.create(data);
-                console.log(msg);
                 socket.to(msg.room).emit("server:chat-message", msg);
             } catch (err) {
                 console.log(err);

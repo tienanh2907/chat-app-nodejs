@@ -18,7 +18,7 @@ const routes = (app) => {
     });
 
     app.get("/home", (req, res) => {
-        res.render("home", users);
+        res.render("home", user);
     });
 
     app.get("/chat", (req, res) => {

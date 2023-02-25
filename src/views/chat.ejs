@@ -91,7 +91,7 @@
                 background-color: #ccc;
             }
 
-            .sidebar div {
+            #join-form div {
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -101,6 +101,10 @@
             #join-btn {
                 margin: 0 30px;
             }
+
+            .d-none {
+                display: none;
+            }
         </style>
     </head>
 
@@ -108,16 +112,18 @@
         <div id="container">
             <nav class="sidebar">
                 <h1 class="title"></h1>
-                <div>
-                    <label for="name-input">Name</label>
-                    <input id="name-input" name="userName" type="text" />
-                </div>
-                <div>
-                    <label for="room-input">Room</label>
-                    <input id="room-input" name="roomName" type="text" />
-                </div>
-                <div>
-                    <button id="join-btn">Join</button>
+                <div id="join-form">
+                    <div>
+                        <label for="name-input">Name</label>
+                        <input id="name-input" name="userName" type="text" />
+                    </div>
+                    <div>
+                        <label for="room-input">Room</label>
+                        <input id="room-input" name="roomName" type="text" />
+                    </div>
+                    <div>
+                        <button id="join-btn">Join</button>
+                    </div>
                 </div>
             </nav>
             <div class="chat">
@@ -196,6 +202,7 @@
             });
 
             socket.on("server:join-room", (messages) => {
+                document.getElementById("join-form").classList.add("d-none");
                 messages.forEach((msg) => {
                     addMessage(msg.user + ": " + msg.content);
                 });

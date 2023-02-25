@@ -169,7 +169,7 @@
                 dataClient.room = roomInput.value;
 
                 const messages = await fetch(
-                    `http://localhost:3500/api/message-room/${dataClient.room}`
+                    `https://chat-app-nodejs.onrender.com/api/message-room/${dataClient.room}`
                 ).then((response) => response.json());
 
                 messages.forEach((message) => {

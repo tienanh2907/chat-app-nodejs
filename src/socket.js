@@ -12,12 +12,13 @@ const socketServices = (io) => {
             }
         });
 
-        socket.on("send-message", async (data) => {
+        socket.on("client:send-message", async (data) => {
             if (!data.content) return console.log("message is empty");
 
             try {
-                const res = await MessageRoom.create(data);
-                socket.emit("chat-message", res);
+                const msg = await MessageRoom.create(data);
+                console.log(msg);
+                socket.to(msg.room).emit("server:chat-message", msg);
             } catch (err) {
                 console.log(err);
             }

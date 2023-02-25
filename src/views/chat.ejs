@@ -73,6 +73,7 @@
                 padding: 0;
                 width: 100%;
                 height: calc(100vh - var(--chat-control-height));
+                overflow-y: scroll;
             }
 
             #messages > li {
@@ -145,7 +146,8 @@
                 const item = document.createElement("li");
                 item.textContent = msg;
                 messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
+                // window.scrollTo(0, document.body.scrollHeight);
+                messages.scrollTop = messages.scrollHeight;
             };
 
             const errorHandle = (error, errorMsg) => {
@@ -185,9 +187,8 @@
                     }
 
                     dataClient.content = input.value;
-                    // addMessage(`You: ${message}`);
-
-                    socket.emit("send-message", dataClient);
+                    socket.emit("client:send-message", dataClient);
+                    addMessage("You: " + dataClient.content);
 
                     input.value = "";
                 }
@@ -200,8 +201,13 @@
                 });
             });
 
-            socket.on("chat-message", (msg) => {
+            socket.on("server:chat-message", (msg) => {
                 addMessage(msg.user + ": " + msg.content);
+                // if (msg.user == dataClient.user) {
+                //     addMessage("You: " + msg.content);
+                // } else {
+                //     addMessage(msg.user + ": " + msg.content);
+                // }
             });
 
             socket.on("user-leave", (user) => {

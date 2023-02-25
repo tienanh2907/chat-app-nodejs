@@ -91,7 +91,7 @@
                 background-color: #ccc;
             }
 
-            #join-form div {
+            .join-form div {
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -112,7 +112,7 @@
         <div id="container">
             <nav class="sidebar">
                 <h1 class="title"></h1>
-                <div id="join-form">
+                <div class="join-form">
                     <div>
                         <label for="name-input">Name</label>
                         <input id="name-input" name="userName" type="text" />
@@ -145,6 +145,7 @@
             const usernameInput = document.querySelector("#name-input");
             const roomInput = document.querySelector("#room-input");
             const title = document.querySelector(".title");
+            const joinForm = document.querySelector(".join-form");
 
             const dataClient = {};
 
@@ -178,7 +179,7 @@
                 socket.emit("client:join-room", dataClient);
 
                 // addMessage("You have joined the chat room " + dataClient.room);
-                title.textContent = `user: ${dataClient.user}\n room: ${dataClient.room}`;
+                title.textContent = `room: ${dataClient.room}`;
                 usernameInput.value = "";
                 roomInput.value = "";
             });
@@ -202,7 +203,9 @@
             });
 
             socket.on("server:join-room", (messages) => {
-                document.getElementById("join-form").classList.add("d-none");
+                console.log(messages);
+                console.log("socket in client");
+                joinForm.classList.add("d-none");
                 messages.forEach((msg) => {
                     addMessage(msg.user + ": " + msg.content);
                 });
@@ -210,11 +213,6 @@
 
             socket.on("server:chat-message", (msg) => {
                 addMessage(msg.user + ": " + msg.content);
-                // if (msg.user == dataClient.user) {
-                //     addMessage("You: " + msg.content);
-                // } else {
-                //     addMessage(msg.user + ": " + msg.content);
-                // }
             });
 
             socket.on("user-leave", (user) => {

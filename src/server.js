@@ -21,10 +21,11 @@ const port = process.env.PORT || 3200;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.set("views", __dirname + "/views");
-app.set("view engine", "ejs");
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.set("views", __dirname + "/views");
+app.set("view engine", "ejs");
 
 routes(app);
 

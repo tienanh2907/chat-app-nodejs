@@ -176,10 +176,12 @@
                     addMessage(message.user + ": " + message.content);
                 });
 
+                joinForm.classList.add("d-none");
+
                 socket.emit("client:join-room", dataClient);
 
                 // addMessage("You have joined the chat room " + dataClient.room);
-                title.textContent = `room: ${dataClient.room}`;
+                title.textContent = `user:  ${dataClient.room} \n room: ${dataClient.room}`;
                 usernameInput.value = "";
                 roomInput.value = "";
             });
@@ -200,15 +202,6 @@
                     input.value = "";
                 }
                 return false;
-            });
-
-            socket.on("server:join-room", (messages) => {
-                console.log(messages);
-                console.log("socket in client");
-                joinForm.classList.add("d-none");
-                messages.forEach((msg) => {
-                    addMessage(msg.user + ": " + msg.content);
-                });
             });
 
             socket.on("server:chat-message", (msg) => {

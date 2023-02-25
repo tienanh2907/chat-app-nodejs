@@ -7,13 +7,6 @@ const socketServices = (io) => {
         socket.on("client:join-room", async ({ room }) => {
             console.log("socket on server");
             socket.join(room);
-            try {
-                const messages = await MessageRoom.find({ room });
-                console.log(messages);
-                socket.to(messages.room).emit("server:join-room", messages);
-            } catch (err) {
-                console.log(err);
-            }
         });
 
         socket.on("client:send-message", async (data) => {
